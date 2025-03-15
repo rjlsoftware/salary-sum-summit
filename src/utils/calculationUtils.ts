@@ -1,26 +1,38 @@
 
 /**
- * Calculates the cost of a meeting based on time and participants
+ * Converts annual salary to hourly rate
+ * Assumes 52 work weeks and 40 hours per week
  */
-export const calculateMeetingCost = (
+export const convertAnnualToHourly = (annualSalary: number): number => {
+  return annualSalary / (52 * 40);
+};
+
+/**
+ * Calculates the real-time cost based on elapsed time
+ */
+export const calculateRealTimeCost = (
   startTime: Date,
-  endTime: Date,
   participants: number,
-  averageHourlySalary: number
+  annualSalary: number
 ): {
   totalCost: number;
   durationHours: number;
   costPerMinute: number;
   costPerPerson: number;
 } => {
+  const now = new Date();
+  
+  // Convert annual salary to hourly
+  const hourlyRate = convertAnnualToHourly(annualSalary);
+  
   // Calculate duration in milliseconds
-  const durationMs = endTime.getTime() - startTime.getTime();
+  const durationMs = now.getTime() - startTime.getTime();
   
   // Convert to hours (with decimal places)
   const durationHours = durationMs / (1000 * 60 * 60);
   
   // Handle invalid inputs
-  if (durationHours <= 0 || participants <= 0 || averageHourlySalary <= 0) {
+  if (durationHours <= 0 || participants <= 0 || hourlyRate <= 0) {
     return {
       totalCost: 0,
       durationHours: 0,
@@ -30,13 +42,13 @@ export const calculateMeetingCost = (
   }
   
   // Calculate total cost
-  const totalCost = durationHours * participants * averageHourlySalary;
+  const totalCost = durationHours * participants * hourlyRate;
   
   // Calculate cost per minute
-  const costPerMinute = (participants * averageHourlySalary) / 60;
+  const costPerMinute = (participants * hourlyRate) / 60;
   
   // Calculate cost per person
-  const costPerPerson = durationHours * averageHourlySalary;
+  const costPerPerson = durationHours * hourlyRate;
   
   return {
     totalCost,
@@ -44,23 +56,6 @@ export const calculateMeetingCost = (
     costPerMinute,
     costPerPerson
   };
-};
-
-/**
- * Calculates the real-time cost based on elapsed time
- */
-export const calculateRealTimeCost = (
-  startTime: Date,
-  participants: number,
-  averageHourlySalary: number
-): {
-  totalCost: number;
-  durationHours: number;
-  costPerMinute: number;
-  costPerPerson: number;
-} => {
-  const now = new Date();
-  return calculateMeetingCost(startTime, now, participants, averageHourlySalary);
 };
 
 /**

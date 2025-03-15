@@ -11,6 +11,7 @@ interface CostDisplayProps {
   costPerMinute: number;
   costPerPerson: number;
   participants: number;
+  hourlyRate: number;
   isCalculating: boolean;
   isRunning?: boolean;
 }
@@ -21,6 +22,7 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
   costPerMinute,
   costPerPerson,
   participants,
+  hourlyRate,
   isCalculating,
   isRunning = false,
 }) => {
@@ -61,6 +63,8 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
   if (totalCost === 0 && !isCalculating && !isRunning) {
     return null;
   }
+
+  const annualTeamCost = hourlyRate * participants * 52 * 40;
 
   return (
     <motion.div
@@ -118,9 +122,15 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
             className="mt-8 text-center"
           >
             <p className="text-sm text-muted-foreground">
-              This meeting with {participants} participant{participants !== 1 ? 's' : ''} costs your organization approximately{' '}
+              This meeting with {participants} participant{participants !== 1 ? 's' : ''} costs your organization{' '}
               <span className="font-semibold text-foreground">
                 {formatCurrency(costPerMinute)} per minute
+              </span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Annual team cost: <span className="font-semibold text-foreground">{formatCurrency(annualTeamCost)}</span> 
+              <span className="text-xs ml-1">
+                (based on {participants} people at {formatCurrency(hourlyRate)}/hr)
               </span>
             </p>
             {isRunning && (
