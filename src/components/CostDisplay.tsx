@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { formatCurrency, formatDuration } from "@/utils/calculationUtils";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { Clock } from "lucide-react";
 
 interface CostDisplayProps {
   totalCost: number;
@@ -11,6 +12,7 @@ interface CostDisplayProps {
   costPerPerson: number;
   participants: number;
   isCalculating: boolean;
+  isRunning?: boolean;
 }
 
 const CostDisplay: React.FC<CostDisplayProps> = ({
@@ -20,6 +22,7 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
   costPerPerson,
   participants,
   isCalculating,
+  isRunning = false,
 }) => {
   const [displayedCost, setDisplayedCost] = useState(0);
   const previousTotalCost = useRef(totalCost);
@@ -55,7 +58,7 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
   }, [totalCost, isCalculating]);
 
   // No need to display anything if no calculation has been made yet
-  if (totalCost === 0 && !isCalculating) {
+  if (totalCost === 0 && !isCalculating && !isRunning) {
     return null;
   }
 
@@ -67,11 +70,25 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
       className="mt-8 w-full"
     >
       <div className="glass-card rounded-2xl p-6 md:p-8 shadow-lg">
-        <h2 className="text-2xl font-medium text-center mb-6">Meeting Cost</h2>
+        <h2 className="text-2xl font-medium text-center mb-6 flex items-center justify-center">
+          {isRunning ? (
+            <>
+              <Clock className="w-6 h-6 mr-2 text-red-500 animate-pulse" />
+              <span>Real-time Meeting Cost</span>
+            </>
+          ) : (
+            "Meeting Cost"
+          )}
+        </h2>
         
         <div className="flex flex-col items-center justify-center mb-6">
-          <p className="text-sm text-muted-foreground mb-2">Total Cost:</p>
-          <div className="text-4xl md:text-5xl font-bold tracking-tight text-primary animate-counter">
+          <p className="text-sm text-muted-foreground mb-2">
+            {isRunning ? "Current Cost:" : "Total Cost:"}
+          </p>
+          <div className={cn(
+            "text-4xl md:text-5xl font-bold tracking-tight animate-counter",
+            isRunning ? "text-red-500" : "text-primary"
+          )}>
             {formatCurrency(displayedCost)}
           </div>
         </div>
@@ -106,6 +123,11 @@ const CostDisplay: React.FC<CostDisplayProps> = ({
                 {formatCurrency(costPerMinute)} per minute
               </span>
             </p>
+            {isRunning && (
+              <p className="text-sm text-red-500 mt-2 font-medium animate-pulse">
+                Timer is running — costs are updating in real-time
+              </p>
+            )}
           </motion.div>
         )}
       </div>

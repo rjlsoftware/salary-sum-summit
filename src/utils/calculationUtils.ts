@@ -47,6 +47,23 @@ export const calculateMeetingCost = (
 };
 
 /**
+ * Calculates the real-time cost based on elapsed time
+ */
+export const calculateRealTimeCost = (
+  startTime: Date,
+  participants: number,
+  averageHourlySalary: number
+): {
+  totalCost: number;
+  durationHours: number;
+  costPerMinute: number;
+  costPerPerson: number;
+} => {
+  const now = new Date();
+  return calculateMeetingCost(startTime, now, participants, averageHourlySalary);
+};
+
+/**
  * Formats a number as currency
  */
 export const formatCurrency = (amount: number): string => {
