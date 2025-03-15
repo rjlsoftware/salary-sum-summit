@@ -1,12 +1,11 @@
 
-import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import ParticipantInput from "./ParticipantInput";
-import { calculateRealTimeCost, convertAnnualToHourly } from "@/utils/calculationUtils";
+import { convertAnnualToHourly } from "@/utils/calculationUtils";
 import CostDisplay from "./CostDisplay";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
-import { Play, Square } from "lucide-react";
+import StartStopButton from "./StartStopButton";
+import { useMeetingTimer } from "@/hooks/useMeetingTimer";
 
 const MeetingForm: React.FC = () => {
   // Default values
@@ -17,66 +16,11 @@ const MeetingForm: React.FC = () => {
   const [participants, setParticipants] = useState<number>(DEFAULT_PARTICIPANTS);
   const [annualSalary, setAnnualSalary] = useState<number>(DEFAULT_ANNUAL_SALARY);
   
-  // Calculation state
-  const [result, setResult] = useState({
-    totalCost: 0,
-    durationHours: 0,
-    costPerMinute: 0,
-    costPerPerson: 0
+  // Use custom timer hook
+  const { isRunning, result, handleStartStop } = useMeetingTimer({
+    participants,
+    annualSalary
   });
-
-  // Real-time tracking state
-  const [isRunning, setIsRunning] = useState(false);
-  const [meetingStartTime, setMeetingStartTime] = useState<Date | null>(null);
-  const timerRef = useRef<number | null>(null);
-
-  // Update timer when running
-  useEffect(() => {
-    if (isRunning && meetingStartTime) {
-      // Update immediately
-      updateRealTimeCost();
-      
-      // Set interval for continuous updates
-      timerRef.current = window.setInterval(() => {
-        updateRealTimeCost();
-      }, 1000);
-      
-      return () => {
-        if (timerRef.current !== null) {
-          clearInterval(timerRef.current);
-        }
-      };
-    }
-  }, [isRunning, meetingStartTime, participants, annualSalary]);
-
-  const updateRealTimeCost = () => {
-    if (!meetingStartTime) return;
-    
-    const calculationResult = calculateRealTimeCost(
-      meetingStartTime,
-      participants,
-      annualSalary
-    );
-    
-    setResult(calculationResult);
-  };
-
-  const handleStartStop = () => {
-    if (isRunning) {
-      // Stop the meeting
-      setIsRunning(false);
-      if (timerRef.current !== null) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      toast.success("Meeting stopped");
-    } else {
-      // Start the meeting
-      setMeetingStartTime(new Date());
-      setIsRunning(true);
-      toast.success("Meeting started");
-    }
-  };
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -111,24 +55,7 @@ const MeetingForm: React.FC = () => {
             />
           </div>
           
-          <Button
-            type="button"
-            onClick={handleStartStop}
-            variant={isRunning ? "destructive" : "default"}
-            className="w-full py-6 text-lg font-medium rounded-xl transition-all duration-300 hover:shadow-lg"
-          >
-            {isRunning ? (
-              <>
-                <Square className="mr-2 h-5 w-5" />
-                Stop Meeting Timer
-              </>
-            ) : (
-              <>
-                <Play className="mr-2 h-5 w-5" />
-                Start Meeting Timer
-              </>
-            )}
-          </Button>
+          <StartStopButton isRunning={isRunning} onClick={handleStartStop} />
         </div>
       </motion.div>
       
