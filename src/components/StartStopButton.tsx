@@ -14,7 +14,7 @@ const StartStopButton: React.FC<StartStopButtonProps> = ({ isRunning, onClick })
       type="button"
       onClick={onClick}
       variant={isRunning ? "destructive" : "default"}
-      className="w-full py-6 text-lg font-medium rounded-xl transition-all duration-300 hover:shadow-lg"
+      className="w-full py-6 text-lg font-medium rounded-xl transition-all duration-300 hover:shadow-lg dark:bg-opacity-90"
     >
       {isRunning ? (
         <>
